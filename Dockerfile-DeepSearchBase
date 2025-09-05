@@ -10,8 +10,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       fontconfig libfreetype6 libfontconfig1 libxrender1 libxext6 \
       ttf-wqy-zenhei ttf-wqy-microhei fonts-arphic-uming fonts-arphic-ukai fonts-noto-cjk \
-    && rm -rf /var/lib/apt/lists/*  \
-    && rm -rf /tmp/build/
+    && rm -rf /var/lib/apt/lists/*
 
 # 创建字体目录
 RUN mkdir -p /usr/share/fonts/custom
@@ -27,4 +26,5 @@ RUN fc-list | grep "custom" || echo "Warning: Custom fonts not found"
 
 # 设置工作目录
 WORKDIR /app
+
     
