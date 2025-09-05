@@ -1,4 +1,4 @@
-name: DeepSearchApi-Build-Push
+name: DeepSearchBase-Build-Push
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: deepsearch-base                          # 镜像名（不含 registry 与 namespace）
-  DOCKERFILE_PATH: ./Dockerfile-deepsearchBase        # Dockerfile 路径（按需修改）
+  DOCKERFILE_PATH: ./Dockerfile-DeepsearchBase        # Dockerfile 路径（按需修改）
 
 jobs:
   build-and-push:
@@ -78,4 +78,5 @@ jobs:
             ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
           # 可选缓存，加速后续构建（首次会慢）
           cache-from: type=registry,ref=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/${{ env.IMAGE_NAME }}:buildcache
+
           cache-to: type=inline
