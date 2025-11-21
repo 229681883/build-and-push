@@ -39,7 +39,11 @@ RUN python3 -m pip install --upgrade pip setuptools wheel && \
 WORKDIR /app
 
 # 下载模型
-RUN paddlex --download PP-StructureV3 /app/models
+#RUN paddlex --download PP-StructureV3 /app/models
+# 下载 OCR 模型文件
+RUN python3 -c "from paddleocr import PaddleOCR, PPStructure;" \
+    "ocr = PaddleOCR(use_angle_cls=True, lang='ch');" \
+    "pps = PPStructure(layout=True, show_log=False)"
 
 # 暴露服务端口
 EXPOSE 8080
