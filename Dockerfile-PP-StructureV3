@@ -1,14 +1,23 @@
+# 基础镜像
 FROM python:3.10-slim
+
+# 设置环境变量
+# 优化点：合并 ENV 指令，减少镜像层数。
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONIOENCODING=utf-8 \
+    LC_ALL=C.UTF-8 \
+    PATH="/root/.local/bin:${PATH}" \
+    # 新增 PIP 源环境变量，方便在国内网络环境下加速
+    PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
+    PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3-pip \
-    python3-dev \
     build-essential \
+    python3-dev \
     libxml2-dev \
     libxslt1-dev \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -18,27 +27,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 升级 pip
-RUN python3 -m pip install --upgrade pip setuptools wheel
-
-# 安装 PaddlePaddle（ARM64 版本）
-# 注意：ARM64 版本的 PaddlePaddle 可能需要从源码构建或使用特定渠道
-RUN python3 -m pip install paddlepaddle==3.2.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
-
-# 安装 安装推理包
-RUN python3 -m pip install "paddleocr[all]"
-
-# 安装 基础服务化部署
-RUN paddlex --install serving
+# 升级 pip 并安装 Python 依赖
+RUN python3 -m pip install --upgrade pip setuptools wheel && \
+    python3 -m pip install \
+    paddlepaddle==3.2.0 \
+    "paddleocr[all]" \
+    "paddlex[serving]" && \
+    python3 -m pip cache purge
 
 # 创建工作目录
 WORKDIR /app
 
-# 这里可以根据需要下载特定的模型
+# 下载模型
 RUN paddlex --download_model PP-StructureV3 /app/models
 
-# 暴露服务端口（默认 8080）
+# 暴露服务端口
 EXPOSE 8080
 
 # 启动命令
+# 优化点：使用数组形式（JSON 数组）的 CMD，这是 Docker 的推荐做法，可以防止不必要的 shell 进程。
 CMD ["paddlex", "--serve", "--pipeline", "PP-StructureV3", "--host", "0.0.0.0", "--port", "8080"]
