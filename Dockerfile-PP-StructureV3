@@ -38,9 +38,6 @@ RUN python3 -m pip install --upgrade pip setuptools wheel && \
 # 创建工作目录
 WORKDIR /app
 
-# 下载模型
-RUN paddlex --serve --pipeline PP-StructureV3 --port 9003
-
 # 暴露服务端口
 EXPOSE 8080
 
